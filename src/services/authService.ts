@@ -5,13 +5,13 @@ import { http } from "@/services/http";
 
 export const login = async (payload: LoginPayload): Promise<LoginResult> => {
   const response = await http.post<ApiResponse<LoginResult>>("/auth/login", payload);
-  const accessToken = response.data.data?.accessToken;
+  const data = response.data.data;
 
-  if (!accessToken) {
+  if (!data?.accessToken) {
     throw new Error("Thiếu access token từ máy chủ");
   }
 
-  return { accessToken };
+  return { accessToken: data.accessToken };
 };
 
 type RegisterApiData = {
@@ -28,5 +28,3 @@ export const register = async (payload: RegisterPayload): Promise<RegisterResult
 
   return user;
 };
-
-

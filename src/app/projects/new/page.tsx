@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import axios from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
@@ -9,9 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createProject } from "@/services/projectService";
+import { createProject, getProjects } from "@/services/projectService";
 import { PROJECTS_QUERY_KEY } from "@/hooks/useProjects";
+import { useAuthStore } from "@/store/authStore";
 import type { ProjectCategory, CreateProjectPayload } from "@/types/project";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
 const CATEGORY_OPTIONS: { value: ProjectCategory; label: string; icon: string }[] = [
   { value: "SOFTWARE", label: "Phần mềm", icon: "💻" },
@@ -39,6 +43,10 @@ const generateKey = (name: string): string => {
 export default function NewProjectPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const clearAccessToken = useAuthStore((state) => state.clearAccessToken);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
 
   const [name, setName] = useState("");
   const [key, setKey] = useState("");
@@ -54,6 +62,57 @@ export default function NewProjectPage() {
       void queryClient.invalidateQueries({ queryKey: PROJECTS_QUERY_KEY });
     },
   });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const guard = async () => {
+      try {
+        let token = accessToken;
+
+        if (!token) {
+          try {
+            const refreshResponse = await axios.post<{ data?: { accessToken?: string } }>(
+              `${API_BASE_URL}/auth/refresh`,
+              {},
+              { withCredentials: true },
+            );
+            const refreshedToken = refreshResponse.data?.data?.accessToken;
+            if (refreshedToken) {
+              token = refreshedToken;
+              setAccessToken(refreshedToken);
+            }
+          } catch {
+            // ignore, handled below
+          }
+        }
+
+        if (!token) {
+          clearAccessToken();
+          if (isMounted) router.replace("/login");
+          return;
+        }
+
+        const projects = await getProjects();
+        if (projects.length > 0 && isMounted) {
+          router.replace("/");
+          return;
+        }
+      } catch {
+        clearAccessToken();
+        if (isMounted) router.replace("/login");
+        return;
+      } finally {
+        if (isMounted) setIsCheckingAccess(false);
+      }
+    };
+
+    void guard();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [accessToken, clearAccessToken, router, setAccessToken]);
 
   const handleNameChange = useCallback(
     (value: string) => {
@@ -89,6 +148,10 @@ export default function NewProjectPage() {
   const isValid = name.trim().length > 0 && /^[A-Z0-9]{2,10}$/.test(key);
 
   const errorMessage = isError && error instanceof Error ? error.message : "Không thể tạo project";
+
+  if (isCheckingAccess) {
+    return <div className="px-6 py-10 text-sm text-muted-foreground">Đang kiểm tra truy cập...</div>;
+  }
 
   return (
     <div className="mx-auto max-w-2xl py-4">
