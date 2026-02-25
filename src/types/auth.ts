@@ -18,5 +18,3 @@ export type RegisterResult = {
   username: string;
   email: string;
 };
-
-

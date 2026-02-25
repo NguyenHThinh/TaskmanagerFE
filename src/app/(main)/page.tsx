@@ -11,6 +11,7 @@ import { TaskTable } from "@/components/kanban/TaskTable";
 import { useProjects } from "@/hooks/useProjects";
 import { useTasks } from "@/hooks/useTasks";
 import type { TaskPriority } from "@/types/task";
+import { CustomSelecter } from "@/components/CustomSelecter";
 
 export default function HomePage() {
   const { projects, firstProject, isLoading: isProjectsLoading, isError: isProjectsError } = useProjects();
@@ -65,7 +66,7 @@ export default function HomePage() {
             </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <select
+            {/* <select
               className="h-10 rounded-md border border-input bg-background px-3 text-sm"
               value={activeProjectId ?? ""}
               onChange={(event) => setSelectedProjectId(event.target.value || null)}
@@ -77,7 +78,17 @@ export default function HomePage() {
                   {project.key} - {project.name}
                 </option>
               ))}
-            </select>
+            </select> */}
+            
+            <CustomSelecter 
+              options={projects.map((project) => ({ label: project.key + " - " + project.name, value: project._id }))}
+              onChange={(value) => setSelectedProjectId(value)}
+              defaultValue={activeProjectId ?? ""}
+              placeholder="Select a project"
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              arrowClassName="size-4 absolute right-2 top-1/2 -translate-y-1/2 transition-transform"
+              emptyText={projects.length === 0 ? "No projects" : undefined}
+            />
 
             <Input
               placeholder="Nhập task mới..."
