@@ -9,9 +9,10 @@ export const RegisterPageContent = () => {
       title="Đăng ký"
       subtitle="Tạo tài khoản để bắt đầu quản lý dự án và cộng tác cùng đội nhóm."
       footer={
-        <div className="text-center text-sm text-zinc-500">
-          <Link className="font-semibold text-zinc-900 hover:text-zinc-700" href="/">
-            Quay lại trang chủ
+        <div className="text-sm text-muted-foreground -mt-3">
+          Đã có tài khoản?{" "}
+          <Link className="font-semibold text-foreground hover:underline" href="/login">
+            Đăng nhập
           </Link>
         </div>
       }

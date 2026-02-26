@@ -47,7 +47,7 @@ export const RegisterForm = () => {
           required
           value={username}
           onChange={(event) => setUsername(event.target.value)}
-          placeholder="nguyen.van.a"
+          placeholder="Nguyen Van A"
         />
       </div>
 
@@ -61,7 +61,7 @@ export const RegisterForm = () => {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@company.com"
+          placeholder="youremail@example.com"
         />
       </div>
 
@@ -73,10 +73,10 @@ export const RegisterForm = () => {
           type="password"
           autoComplete="new-password"
           required
-          minLength={6}
+          minLength={8}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="Tối thiểu 6 ký tự"
+          placeholder="Tối thiểu 8 ký tự"
         />
       </div>
 
@@ -88,7 +88,7 @@ export const RegisterForm = () => {
           type="password"
           autoComplete="new-password"
           required
-          minLength={6}
+          minLength={8}
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}
           placeholder="Nhập lại mật khẩu"
@@ -110,13 +110,6 @@ export const RegisterForm = () => {
       <Button type="submit" disabled={isPending}>
         {isPending ? "Đang tạo tài khoản..." : "Đăng ký"}
       </Button>
-
-      <p className="text-center text-sm text-muted-foreground">
-        Đã có tài khoản?{" "}
-        <Link className="font-semibold text-foreground hover:underline" href="/login">
-          Đăng nhập
-        </Link>
-      </p>
     </form>
   );
 };
