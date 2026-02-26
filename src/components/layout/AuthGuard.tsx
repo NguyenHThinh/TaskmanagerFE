@@ -20,7 +20,6 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const clearAccessToken = useAuthStore((state) => state.clearAccessToken);
-  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,8 +63,6 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
         clearAccessToken();
         if (isMounted) router.replace("/login");
         return;
-      } finally {
-        if (isMounted) setIsChecking(false);
       }
     };
 
@@ -75,10 +72,6 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
       isMounted = false;
     };
   }, [accessToken, clearAccessToken, pathname, router, setAccessToken]);
-
-  if (isChecking) {
-    return <div className="px-6 py-10 text-sm text-muted-foreground">Đang kiểm tra truy cập...</div>;
-  }
 
   return <>{children}</>;
 };
