@@ -7,11 +7,12 @@ type Props = {
   keyValue: string;
   onNameChange: (value: string) => void;
   onKeyChange: (value: string) => void;
+  className?: string;
 };
 
-export const ProjectBasicInfoSection = ({ name, keyValue, onNameChange, onKeyChange }: Props) => {
+export const ProjectBasicInfoSection = ({ name, keyValue, onNameChange, onKeyChange, className }: Props) => {
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle className="text-sm">Thông tin cơ bản</CardTitle>
         <CardDescription>Tên và mã định danh cho project</CardDescription>

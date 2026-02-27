@@ -18,7 +18,7 @@ export const AuthCardLayout = ({ title, subtitle, children, footer, contentClass
         <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-zinc-900 p-8 text-white lg:flex">
           <div className="absolute inset-0 z-0">
             <Image
-              src="/images/auth-background.avif"
+              src="/images/auth-background.png"
               alt="Authentication background"
               className="h-full w-full object-cover opacity-60 mix-blend-overlay"
               fill

@@ -1,8 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { logout } from "@/services/authService";
+import { useRouter } from "next/navigation";
 
 export const Topbar = () => {
+  const router = useRouter();
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
+  
   return (
     <header className="sticky top-0 z-10 flex h-desktop-header-height items-center justify-between border-b border-border bg-background/95 px-6 py-2.5 backdrop-blur">
       <div>
@@ -13,7 +21,7 @@ export const Topbar = () => {
         <Button variant="outline" className="hidden sm:inline-flex">
           Filters
         </Button>
-        <Button variant="outline" size="icon" className="rounded-full">
+        <Button variant="outline" size="icon" className="rounded-full" onClick={() => handleLogout()}>
           NA
         </Button>
       </div>

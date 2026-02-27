@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useLogin } from "@/hooks/useLogin";
-import { getProjects } from "@/services/projectService";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -19,13 +18,6 @@ export const LoginForm = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     await mutateAsync({ email, password });
-
-    const projects = await getProjects();
-    if (projects.length === 0) {
-      router.push("/projects/new");
-      return;
-    }
-
     router.push("/");
   };
 
