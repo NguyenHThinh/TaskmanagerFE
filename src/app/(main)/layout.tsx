@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/layout/AppShell";
-import { AuthGuard } from "@/components/layout/AuthGuard";
+import { AppDialogProvider } from "@/contexts/AppDialogContext";
 
 type AppLayoutProps = {
   children: ReactNode;
@@ -9,8 +9,8 @@ type AppLayoutProps = {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   return (
-    <AuthGuard>
+    <AppDialogProvider>
       <AppShell>{children}</AppShell>
-    </AuthGuard>
+    </AppDialogProvider>
   );
 }

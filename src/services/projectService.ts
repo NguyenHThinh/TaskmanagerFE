@@ -1,4 +1,4 @@
-import { http } from "@/services/http";
+import { http } from "@/lib/http";
 import type { Project, CreateProjectPayload } from "@/types/project";
 import type { ApiResponse } from "@/types/api";
 

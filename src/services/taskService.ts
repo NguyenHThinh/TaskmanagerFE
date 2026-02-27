@@ -1,4 +1,4 @@
-import { http } from "@/services/http";
+import { http } from "@/lib/http";
 import type { CreateTaskPayload, Task, TaskStatus } from "@/types/task";
 
 type TaskQuery = {

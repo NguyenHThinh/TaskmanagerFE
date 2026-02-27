@@ -23,7 +23,7 @@ const authHttp = createHttpClient();
 let refreshPromise: Promise<string> | null = null;
 
 const requestInterceptor = (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-  const token = useAuthStore.getState().accessToken;
+  let token = useAuthStore.getState().accessToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

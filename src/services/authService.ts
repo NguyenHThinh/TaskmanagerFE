@@ -1,7 +1,8 @@
 import type { ApiResponse } from "@/types/api";
 import type { LoginPayload, LoginResult, RegisterPayload, RegisterResult } from "@/types/auth";
 
-import { http } from "@/services/http";
+import { http } from "@/lib/http";
+import { useAuthStore } from "@/store/authStore";
 
 export const login = async (payload: LoginPayload): Promise<LoginResult> => {
   const response = await http.post<ApiResponse<LoginResult>>("/auth/login", payload);
@@ -27,4 +28,12 @@ export const register = async (payload: RegisterPayload): Promise<RegisterResult
   }
 
   return user;
+};
+
+export const logout = async (): Promise<void> => {
+  await http.post<ApiResponse<void>>("/auth/logout", { withCredentials: true });
+  useAuthStore.getState().clearAccessToken();
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
 };

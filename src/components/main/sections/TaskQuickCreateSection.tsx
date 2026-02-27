@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { CustomSelecter } from "@/components/CustomSelecter";
+import { CustomSelecter } from "@/components/common/CustomSelecter";
 import type { Project } from "@/types/project";
 import type { TaskPriority } from "@/types/task";
+import { TASK_PRIORITIES } from "@/constants/tasks";
 
 type Props = {
   projects: Project[];
@@ -31,27 +32,24 @@ export const TaskQuickCreateSection = ({
   return (
     <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center">
       <CustomSelecter
+        id="project-selecter"
         options={projects.map((project) => ({ label: `${project.key} - ${project.name}`, value: project._id }))}
         onChange={onProjectChange}
         defaultValue={activeProjectId ?? ""}
         placeholder="Select a project"
-        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-        arrowClassName="size-4 absolute right-2 top-1/2 -translate-y-1/2 transition-transform"
         emptyText={projects.length === 0 ? "No projects" : undefined}
       />
 
       <Input placeholder="Nhập task mới..." value={title} onChange={(event) => onTitleChange(event.target.value)} />
 
-      <select
-        className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-        value={priority}
-        onChange={(event) => onPriorityChange(event.target.value as TaskPriority)}
-      >
-        <option value="LOW">Low</option>
-        <option value="MEDIUM">Medium</option>
-        <option value="HIGH">High</option>
-        <option value="URGENT">Urgent</option>
-      </select>
+      <CustomSelecter
+        id="priority-selecter"
+        options={TASK_PRIORITIES.map((priority) => ({ label: priority.label, value: priority.value }))}
+        onChange={(value) => onPriorityChange(value as TaskPriority)}
+        defaultValue={priority ?? ""}
+        className="h-10 leading-10 w-max rounded-md border border-input bg-background px-3 pr-6 text-sm"
+        emptyText={TASK_PRIORITIES.length === 0 ? "No priorities" : undefined}
+      />
 
       <Button onClick={onCreateTask} disabled={!activeProjectId || isCreatingTask || !title.trim()}>
         {isCreatingTask ? "Đang tạo..." : "+ Tạo task"}
