@@ -41,7 +41,7 @@ const responseErrorInterceptor = async (error: AxiosError): Promise<never> => {
   const isAuthRefresh = originalRequest.url?.includes("/auth/refresh") ?? false;
   const hasRetried = (originalRequest as { _retry?: boolean })._retry === true;
 
-  if (status === 403 || status === 404) {
+  if (status === 403) {
     if (typeof window !== "undefined") {
       window.location.href = "/404";
     }

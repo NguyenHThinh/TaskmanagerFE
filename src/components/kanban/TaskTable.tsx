@@ -4,11 +4,13 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getTaskTypeIcon } from "@/constants/task";
 import type { Task, TaskPriority, TaskStatus } from "@/types/task";
 
 type TaskTableProps = {
   tasks: Task[];
   onMoveTask: (input: { taskId: string; nextStatus: TaskStatus }) => Promise<unknown>;
+  onTaskClick?: (task: Task) => void;
   isMovingTask?: boolean;
 };
 
@@ -27,7 +29,7 @@ const priorityLabels: Record<TaskPriority, string> = {
 
 const statusList: TaskStatus[] = ["TODO", "IN_PROGRESS", "DONE"];
 
-export const TaskTable = ({ tasks, onMoveTask, isMovingTask = false }: TaskTableProps) => {
+export const TaskTable = ({ tasks, onMoveTask, onTaskClick, isMovingTask = false }: TaskTableProps) => {
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
 
   const handleDropToStatus = async (nextStatus: TaskStatus): Promise<void> => {
@@ -46,7 +48,7 @@ export const TaskTable = ({ tasks, onMoveTask, isMovingTask = false }: TaskTable
   };
 
   return (
-    <section className="rounded-2xl border border-border bg-card shadow-sm">
+    <section className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
       <div className="flex flex-col gap-3 border-b border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-base font-semibold text-foreground">Task table</h3>
@@ -87,9 +89,18 @@ export const TaskTable = ({ tasks, onMoveTask, isMovingTask = false }: TaskTable
                 key={task._id}
                 draggable
                 onDragStart={() => setDraggingTaskId(task._id)}
+                onClick={() => onTaskClick?.(task)}
+                role={onTaskClick ? "button" : undefined}
+                tabIndex={onTaskClick ? 0 : undefined}
+                onKeyDown={onTaskClick ? (e) => e.key === "Enter" && onTaskClick(task) : undefined}
                 className="cursor-grab transition hover:bg-muted/30 active:cursor-grabbing"
               >
-                <td className="px-4 py-3 font-medium text-foreground">{task.title}</td>
+                <td className="px-4 py-3 font-medium text-foreground">
+                  <span className="flex items-center gap-2">
+                    <span aria-hidden>{getTaskTypeIcon(task.type)}</span>
+                    {task.title}
+                  </span>
+                </td>
                 <td className="px-4 py-3">
                   <Badge variant="secondary">{statusLabels[task.status]}</Badge>
                 </td>
