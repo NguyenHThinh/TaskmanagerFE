@@ -2,8 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { createTask, getTasks, updateTaskStatus } from "@/services/taskService";
+import { createTask, getTasks, updateTask, updateTaskStatus } from "@/services/taskService";
 import type { CreateTaskPayload, Task, TaskStatus } from "@/types/task";
+
+type UpdateTaskPayload = Partial<CreateTaskPayload>;
 
 const tasksQueryKey = (projectId: string) => ["tasks", projectId];
 
@@ -64,6 +66,15 @@ export const useTasks = (projectId: string | null) => {
     },
   });
 
+  const updateTaskMutation = useMutation({
+    mutationFn: ({ taskId, payload }: { taskId: string; payload: UpdateTaskPayload }) =>
+      updateTask(taskId, payload),
+    onSuccess: () => {
+      if (!projectId) return;
+      void queryClient.invalidateQueries({ queryKey: tasksQueryKey(projectId) });
+    },
+  });
+
   return {
     tasks: tasksQuery.data ?? [],
     isLoading: tasksQuery.isLoading,
@@ -73,5 +84,7 @@ export const useTasks = (projectId: string | null) => {
     isMovingTask: moveTaskMutation.isPending,
     createTask: createTaskMutation.mutateAsync,
     isCreatingTask: createTaskMutation.isPending,
+    updateTask: updateTaskMutation.mutateAsync,
+    isUpdatingTask: updateTaskMutation.isPending,
   };
 };
