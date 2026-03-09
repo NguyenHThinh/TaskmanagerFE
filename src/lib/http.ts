@@ -10,6 +10,12 @@ import { useAuthStore } from "@/store/authStore";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
+type RequestMetaConfig = InternalAxiosRequestConfig & {
+  _retry?: boolean;
+  skipAuthRedirect?: boolean;
+  skipStatusRedirect?: number[];
+};
+
 const createHttpClient = (): AxiosInstance => {
   return axios.create({
     baseURL: API_BASE_URL,
@@ -22,8 +28,19 @@ const authHttp = createHttpClient();
 
 let refreshPromise: Promise<string> | null = null;
 
+const safeRedirect = (to: string): void => {
+  if (typeof window === "undefined") return;
+  if (window.location.pathname === to) return;
+  window.location.href = to;
+};
+
+const hasSkipRedirectStatus = (config: RequestMetaConfig, status?: number): boolean => {
+  if (!status) return false;
+  return Array.isArray(config.skipStatusRedirect) && config.skipStatusRedirect.includes(status);
+};
+
 const requestInterceptor = (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-  let token = useAuthStore.getState().accessToken;
+  const token = useAuthStore.getState().accessToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -31,28 +48,30 @@ const requestInterceptor = (config: InternalAxiosRequestConfig): InternalAxiosRe
 };
 
 const responseErrorInterceptor = async (error: AxiosError): Promise<never> => {
-  const originalRequest = error.config;
+  const originalRequest = error.config as RequestMetaConfig | undefined;
 
   if (!originalRequest) {
     return Promise.reject(error);
   }
 
   const status = error.response?.status;
-  const isAuthRefresh = originalRequest.url?.includes("/auth/refresh") ?? false;
-  const hasRetried = (originalRequest as { _retry?: boolean })._retry === true;
+  const requestUrl = originalRequest.url ?? "";
+  const isAuthEndpoint = requestUrl.includes("/auth/");
+  const isAuthRefresh = requestUrl.includes("/auth/refresh");
+  const hasRetried = originalRequest._retry === true;
 
-  if (status === 403) {
-    if (typeof window !== "undefined") {
-      window.location.href = "/404";
+  if (!originalRequest.skipAuthRedirect && !hasSkipRedirectStatus(originalRequest, status)) {
+    if (status === 403 || status === 404) {
+      safeRedirect("/404");
+      return Promise.reject(error);
     }
+  }
+
+  if (status !== 401 || isAuthRefresh || hasRetried || isAuthEndpoint) {
     return Promise.reject(error);
   }
 
-  if (status !== 401 || isAuthRefresh || hasRetried) {
-    return Promise.reject(error);
-  }
-
-  (originalRequest as { _retry?: boolean })._retry = true;
+  originalRequest._retry = true;
 
   try {
     if (!refreshPromise) {
@@ -72,8 +91,8 @@ const responseErrorInterceptor = async (error: AxiosError): Promise<never> => {
     return http(originalRequest);
   } catch (refreshError) {
     useAuthStore.getState().clearAccessToken();
-    if (typeof window !== "undefined") {
-      window.location.href = "/login";
+    if (!originalRequest.skipAuthRedirect) {
+      safeRedirect("/login");
     }
     return Promise.reject(refreshError);
   }
@@ -94,5 +113,3 @@ http.interceptors.request.use(requestInterceptor);
 http.interceptors.response.use((response) => response, responseErrorInterceptor);
 
 export { http };
-
-

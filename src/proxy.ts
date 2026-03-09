@@ -12,7 +12,8 @@ const isPublicPath = (pathname: string): boolean => {
 };
 
 const hasAuthCookie = (request: NextRequest): boolean => {
-  return request.cookies.has(REFRESH_COOKIE_NAME);
+  const token = request.cookies.get(REFRESH_COOKIE_NAME)?.value;
+  return Boolean(token && token.trim().length > 0);
 };
 
 export function proxy(request: NextRequest) {
@@ -27,7 +28,8 @@ export function proxy(request: NextRequest) {
 
   if (!hasAuthCookie(request)) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("from", pathname);
+    const from = `${pathname}${request.nextUrl.search}`;
+    loginUrl.searchParams.set("from", from);
     return NextResponse.redirect(loginUrl);
   }
 
