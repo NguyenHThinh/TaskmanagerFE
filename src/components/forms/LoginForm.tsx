@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,21 +11,14 @@ import { useLogin } from "@/hooks/useLogin";
 
 export const LoginForm = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { mutateAsync, isPending, isError, error } = useLogin();
-  const redirectTo = useMemo(() => {
-    const from = searchParams.get("from") ?? "/";
-    // Chỉ cho redirect nội bộ để tránh open-redirect
-    if (!from.startsWith("/") || from.startsWith("//")) return "/";
-    return from;
-  }, [searchParams]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     await mutateAsync({ email, password });
-    router.push(redirectTo);
+    router.push("/");
   };
 
   const errorMessage =
